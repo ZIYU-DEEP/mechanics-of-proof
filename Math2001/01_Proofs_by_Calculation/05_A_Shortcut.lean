@@ -4,22 +4,41 @@ import Library.Basic
 
 math2001_init
 
+-- if a fact can be deduced from another fact
+-- simply by adding/subtracting terms from both sides
+-- (no multiplication/division/etc on both side)
+-- then there is no need to write out a full proof by calculation
+-- addarith [h] would be sufficient
+
 /-! # Section 1.5: A shortcut -/
 
-example {x : ℤ} (h1 : x + 4 = 2) : x = -2 := by addarith [h1]
+example {x : ℤ} (h1 : x + 4 = 2) :
+  x = -2 := by
+    addarith [h1]
 
-example {a b : ℤ} (ha : a - 2 * b = 1) : a = 2 * b + 1 := by addarith [ha]
+example {a b : ℤ} (ha : a - 2 * b = 1) :
+  a = 2 * b + 1 := by
+    addarith [ha]
 
-example {x y : ℚ} (hx : x = 2) (hy : y ^ 2 = -7) : x + y ^ 2 = -5 :=
-  calc
-    x + y ^ 2 = x - 7 := by addarith [hy]
-    _ = -5 := by addarith [hx]
+example {x y : ℚ} (hx : x = 2) (hy : y ^ 2 = -7) :
+  x + y ^ 2 = -5 :=
+    calc
+      x + y ^ 2 = x - 7 := by addarith [hy]
+      _ = -5 := by addarith [hx]
 
 
-example {s t : ℝ} (h : t = 4 - s * t) : t + s * t > 0 := by addarith [h]
+example {s t : ℝ} (h : t = 4 - s * t) :
+  t + s * t > 0 := by
+    addarith [h]
 
-example {m n : ℝ} (h1 : m ≤ 8 - n) : 10 > m + n := by addarith [h1]
+example {m n : ℝ} (h1 : m ≤ 8 - n) :
+  10 > m + n := by
+    addarith [h1]
 
 
 -- Check that `addarith` can't verify this deduction!
-example {w : ℚ} (h1 : 3 * w + 1 = 4) : w = 1 := sorry
+example {w : ℚ} (h1 : 3 * w + 1 = 4) :
+  w = 1 := by
+    calc
+      w = (3 * w + 1) / 3 - 1 / 3 := by ring
+      _ = 1 := by addarith [h1]
