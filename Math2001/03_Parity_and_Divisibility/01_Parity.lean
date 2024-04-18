@@ -9,11 +9,13 @@ open Int
 example : Odd (7 : ℤ) := by
   dsimp [Odd]
   use 3
-  numbers
+  norm_num
 
 
 example : Odd (-3 : ℤ) := by
-  sorry
+  dsimp [Odd]
+  use -2
+  norm_num
 
 example {n : ℤ} (hn : Odd n) : Odd (3 * n + 2) := by
   dsimp [Odd] at *
@@ -25,33 +27,64 @@ example {n : ℤ} (hn : Odd n) : Odd (3 * n + 2) := by
 
 
 example {n : ℤ} (hn : Odd n) : Odd (7 * n - 4) := by
-  sorry
+  dsimp [Odd] at *
+  obtain ⟨k, hk⟩ := hn
+  use 7 * k + 1
+  calc
+    7 * n - 4 = 7 * (2 * k + 1) - 4 := by rw [hk]
+    _ = 2 * (7 * k + 1) + 1 := by ring
+
 
 example {x y : ℤ} (hx : Odd x) (hy : Odd y) : Odd (x + y + 1) := by
-  obtain ⟨a, ha⟩ := hx
-  obtain ⟨b, hb⟩ := hy
-  use a + b + 1
+  obtain ⟨a, ha⟩ := hx  -- this is claim a: ℤ and ha: x = 2 * a + 1
+  obtain ⟨b, hb⟩ := hy  -- this is claim b: ℤ and hb: y = 2 * b + 1
+  dsimp [Odd] -- this changes the goal to be ∃ k, x + y + 1 = 2 * k + 1
+  use a + b + 1  -- this replace k to be a + b + 1
   calc
     x + y + 1 = 2 * a + 1 + (2 * b + 1) + 1 := by rw [ha, hb]
     _ = 2 * (a + b + 1) + 1 := by ring
 
 
 example {x y : ℤ} (hx : Odd x) (hy : Odd y) : Odd (x * y + 2 * y) := by
-  sorry
+  obtain ⟨a, ha⟩ := hx  -- this is claim a: ℤ and ha: x = 2 * a + 1
+  obtain ⟨b, hb⟩ := hy  -- this is claim b: ℤ and hb: y = 2 * b + 1
+  dsimp [Odd]
+  use 2 * (a * b) + 3 * b + a + 1
+  calc
+    x * y + 2 * y = (2 * a + 1) * (2 * b + 1) + 2 * (2 * b + 1) := by rw [ha, hb]
+    _ = 2 * (2 * (a * b) + 3 * b + a + 1) + 1 := by ring
+
 
 example {m : ℤ} (hm : Odd m) : Even (3 * m - 5) := by
-  sorry
+  obtain ⟨a, ha⟩ := hm
+  dsimp [Even] at *
+  use 3 * a - 1
+  calc
+    (3 * m - 5) = 3 * (2 * a + 1) - 5 := by rw [ha]
+    _ = 6 * a - 2 := by ring
+    _ = 2 * (3 * a - 1) := by ring
+
 
 example {n : ℤ} (hn : Even n) : Odd (n ^ 2 + 2 * n - 5) := by
-  sorry
+  obtain ⟨k, hk⟩ := hn
+  use 2 * k ^ 2 + 2 * k - 3
+  calc
+    n ^ 2 + 2 * n - 5
+      = (2 * k) ^ 2 + 2 * (2 * k) - 5 := by rw [hk]
+    _ = 4 * k ^ 2 + 4 * k - 6 + 1 := by ring
+    _ = 2 * (2 * k ^ 2 + 2 * k - 3) + 1 := by ring
 
+-- lemma Int.even_or_odd (n : ℤ) : Even n ∨ Odd n :=
+-- every integer is either even or odd
 example (n : ℤ) : Even (n ^ 2 + n + 4) := by
   obtain hn | hn := Int.even_or_odd n
+  -- If n is even
   · obtain ⟨x, hx⟩ := hn
     use 2 * x ^ 2 + x + 2
     calc
       n ^ 2 + n + 4 = (2 * x) ^ 2 + 2 * x + 4 := by rw [hx]
       _ = 2 * (2 * x ^ 2 + x + 2) := by ring
+  -- if n is odd
   · obtain ⟨x, hx⟩ := hn
     use 2 * x ^ 2 + 3 * x + 3
     calc

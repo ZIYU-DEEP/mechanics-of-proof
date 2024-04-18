@@ -15,20 +15,29 @@ example {x y : ℤ} (h : 2 * x - y = 4 ∧ y - x + 1 = 2) : x = 5 := by
 
 example {p : ℚ} (hp : p ^ 2 ≤ 8) : p ≥ -5 := by
   have hp' : -3 ≤ p ∧ p ≤ 3
-  · apply abs_le_of_sq_le_sq'
+  · apply abs_le_of_sq_le_sq'  -- if x ^ 2 ≤ y ^ 2 and 0 ≤ y then -y ≤ x ∧ x ≤ y
+    -- Prove the part where x ^ 2 ≤ y ^ 2
     calc
       p ^ 2 ≤ 9 := by addarith [hp]
       _ = 3 ^ 2 := by numbers
+    -- Prove the part where 0 ≤ y
     numbers
-  sorry
+  -- Now we have hp' proved
+  obtain ⟨h1, h2⟩ := hp'
+  -- Since p ≥ -3, by addarith we will have p ≥ -5
+  addarith [h1]
+
+
 
 example {a b : ℝ} (h1 : a - 5 * b = 4) (h2 : b + 2 = 3) : a = 9 ∧ b = 1 := by
-  constructor
+  constructor -- split the problem into two simpler problem
+  -- Prove that a = 9
   · calc
       a = 4 + 5 * b := by addarith [h1]
       _ = -6 + 5 * (b + 2) := by ring
       _ = -6 + 5 * 3 := by rw [h2]
       _ = 9 := by ring
+  -- Prove that b = 1
   · addarith [h2]
 
 
@@ -42,14 +51,35 @@ example {a b : ℝ} (h1 : a - 5 * b = 4) (h2 : b + 2 = 3) : a = 9 ∧ b = 1 := b
   · apply hb
 
 
+-- lemma le_antisymm {a b : α} (h1 : a ≤ b) (h2 : b ≤ a) : a = b :=
+
 example {a b : ℝ} (h1 : a ^ 2 + b ^ 2 = 0) : a = 0 ∧ b = 0 := by
   have h2 : a ^ 2 = 0
   · apply le_antisymm
+    -- Prove that a ^ 2 ≤ 0
     calc
       a ^ 2 ≤ a ^ 2 + b ^ 2 := by extra
       _ = 0 := by rw [h1]
+    -- Prove that a ^ 2 ≥ 0
     extra
-  sorry
+  cancel 2 at h2
+
+  have h3 : b ^ 2 = 0
+  · apply le_antisymm
+    -- Prove that b ^ 2 ≤ 0
+    calc
+      b ^ 2 ≤ a ^ 2 + b ^ 2 := by extra
+      _ = 0 := by rw [h1]
+    -- Prove that a ^ 2 ≥ 0
+    extra
+  cancel 2 at h3
+
+  constructor
+  -- Prove that a = 0
+  · apply h2
+  -- Prove that b = 0
+  · apply h3
+
 
 /-! # Exercises -/
 

@@ -4,9 +4,10 @@ import Library.Basic
 
 math2001_init
 
+-- Or in the hypothesis
 
 example {x y : ℝ} (h : x = 1 ∨ y = -1) : x * y + x = y + 1 := by
-  obtain hx | hy := h
+  obtain hx | hy := h  -- split h into two hypothesis
   calc
     x * y + x = 1 * y + 1 := by rw [hx]
     _ = y + 1 := by ring
@@ -18,18 +19,27 @@ example {x y : ℝ} (h : x = 1 ∨ y = -1) : x * y + x = y + 1 := by
 example {n : ℕ} : n ^ 2 ≠ 2 := by
   have hn := le_or_succ_le n 1
   obtain hn | hn := hn
+
+  -- Prove the case when n ≤ 1
   apply ne_of_lt
   calc
     n ^ 2 ≤ 1 ^ 2 := by rel [hn]
-    _ < 2 := by numbers
-  sorry
+    _ < 2 := by norm_num
+
+  -- Prove the case when n ≥ 2
+  apply ne_of_gt
+  calc
+    n ^ 2 ≥ 2 ^ 2 := by rel [hn]
+    _ > 2 := by norm_num
+
+-- Or in the goal
 
 example {x : ℝ} (hx : 2 * x + 1 = 5) : x = 1 ∨ x = 2 := by
-  right
+  right  -- Using right to announce we are proving x = 2
   calc
     x = (2 * x + 1 - 1) / 2 := by ring
     _ = (5 - 1) / 2 := by rw [hx]
-    _ = 2 := by numbers
+    _ = 2 := by norm_num
 
 
 example {x : ℝ} (hx : x ^ 2 - 3 * x + 2 = 0) : x = 1 ∨ x = 2 := by
@@ -37,14 +47,50 @@ example {x : ℝ} (hx : x ^ 2 - 3 * x + 2 = 0) : x = 1 ∨ x = 2 := by
     calc
     (x - 1) * (x - 2) = x ^ 2 - 3 * x + 2 := by ring
     _ = 0 := by rw [hx]
+
+  -- If the product of two numbers is zero, then one of them is zero.
+  -- The below means either (x - 1) = 0 or (x - 2) = 0.
   have h2 := eq_zero_or_eq_zero_of_mul_eq_zero h1
-  sorry
+  obtain h21 | h22 := h2
+
+  left
+  calc
+    x = x - 1 + 1 := by ring
+    _ = 0 + 1 := by rw [h21]
+    _ = 1 := by norm_num
+
+  right
+  calc
+    x = x - 2 + 2 := by ring
+    _ = 0 + 2 := by rw [h22]
+    _ = 2 := by norm_num
+
+
+example {x : ℝ} (hx : x ^ 2 - 3 * x + 2 = 0) : x = 1 ∨ x = 2 := by
+  have h1 :=
+    calc
+    (x - 1) * (x - 2) = x ^ 2 - 3 * x + 2 := by ring
+    _ = 0 := by rw [hx]
+
+  -- If the product of two numbers is zero, then one of them is zero.
+  -- The below means either (x - 1) = 0 or (x - 2) = 0.
+  have h2 := eq_zero_or_eq_zero_of_mul_eq_zero h1
+  obtain h21 | h22 := h2
+
+  left
+  addarith [h21]
+
+  right
+  addarith [h22]
+
 
 example {n : ℤ} : n ^ 2 ≠ 2 := by
   have hn0 := le_or_succ_le n 0
+
   obtain hn0 | hn0 := hn0
   · have : 0 ≤ -n := by addarith [hn0]
     have hn := le_or_succ_le (-n) 1
+
     obtain hn | hn := hn
     · apply ne_of_lt
       calc
@@ -56,6 +102,7 @@ example {n : ℤ} : n ^ 2 ≠ 2 := by
         (2:ℤ) < 2 ^ 2 := by numbers
         _ ≤ (-n) ^ 2 := by rel [hn]
         _ = n ^ 2 := by ring
+
   · have hn := le_or_succ_le n 1
     obtain hn | hn := hn
     · apply ne_of_lt

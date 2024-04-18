@@ -16,16 +16,24 @@ example {t : ℝ} (h : ∃ a : ℝ, a * t < 0) : t ≠ 0 := by
   obtain ⟨x, hxt⟩ := h
   have H := le_or_gt x 0
   obtain hx | hx := H
+  -- prove when x ≤ 0
   · have hxt' : 0 < (-x) * t := by addarith [hxt]
     have hx' : 0 ≤ -x := by addarith [hx]
     cancel -x at hxt'
     apply ne_of_gt
     apply hxt'
-  · sorry
+  -- prove when x > 0
+  · have hxt'' : 0 < x * (-t)  := by
+      calc
+        0 < (-x) * t := by addarith [hxt]
+        _ = x * (-t) := by ring
+    cancel x at hxt''
+    addarith [hxt'']
+
 
 example : ∃ n : ℤ, 12 * n = 84 := by
   use 7
-  numbers
+  norm_num
 
 
 example (x : ℝ) : ∃ y : ℝ, y > x := by
@@ -34,13 +42,20 @@ example (x : ℝ) : ∃ y : ℝ, y > x := by
 
 
 example : ∃ m n : ℤ, m ^ 2 - n ^ 2 = 11 := by
-  sorry
+  use 6, 5
+  norm_num
 
 example (a : ℤ) : ∃ m n : ℤ, m ^ 2 - n ^ 2 = 2 * a + 1 := by
-  sorry
+  use (a + 1), a
+  ring
 
 example {p q : ℝ} (h : p < q) : ∃ x, p < x ∧ x < q := by
-  sorry
+  use (p + q) / 2
+  constructor
+  · calc p = (p + p) / 2 := by ring
+         _ < (p + q) / 2 := by rel [h]
+  · calc q = (q + q) / 2 := by ring
+         _ > (p + q) / 2 := by rel [h]
 
 example : ∃ a b c d : ℕ,
     a ^ 3 + b ^ 3 = 1729 ∧ c ^ 3 + d ^ 3 = 1729 ∧ a ≠ c ∧ a ≠ d := by

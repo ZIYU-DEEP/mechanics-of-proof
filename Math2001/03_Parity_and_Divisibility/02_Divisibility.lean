@@ -8,14 +8,16 @@ math2001_init
 example : (11 : ℕ) ∣ 88 := by
   dsimp [(· ∣ ·)]
   use 8
-  numbers
+  norm_num
 
 
 example : (-2 : ℤ) ∣ 6 := by
-  sorry
+  dsimp [(· ∣ ·)]
+  use -3
+  norm_num
 
 example {a b : ℤ} (hab : a ∣ b) : a ∣ b ^ 2 + 2 * b := by
-  obtain ⟨k, hk⟩ := hab
+  obtain ⟨k, hk⟩ := hab  -- This gives b = a * k
   use k * (a * k + 2)
   calc
     b ^ 2 + 2 * b = (a * k) ^ 2 + 2 * (a * k) := by rw [hk]
@@ -23,13 +25,30 @@ example {a b : ℤ} (hab : a ∣ b) : a ∣ b ^ 2 + 2 * b := by
 
 
 example {a b c : ℕ} (hab : a ∣ b) (hbc : b ^ 2 ∣ c) : a ^ 2 ∣ c := by
-  sorry
+  obtain ⟨m, hm⟩ := hab  -- This gives b = a * m
+  obtain ⟨n, hn⟩ := hbc  -- This gives c = b ^ 2 * n
+  dsimp [(· ∣ ·)]
+  use m ^ 2 * n
+  calc
+    c = b ^ 2 * n := by rw [hn]
+    _ = (a * m) ^ 2 * n := by rw [hm]
+    _ = a ^ 2 * (m ^ 2 * n) := by ring
+
 
 example {x y z : ℕ} (h : x * y ∣ z) : x ∣ z := by
-  sorry
+  obtain ⟨t, ht⟩ := h
+  use y * t
+  calc
+    z = x * y * t := by rw [ht]
+    _ = x * (y * t) := by ring
+
+-- lemma Int.not_dvd_of_exists_lt_and_lt (a b : ℤ)
+--   (h : ∃ q, b * q < a ∧ a < b * (q + 1)) :
+--   ¬b ∣ a := sorry
 
 example : ¬(5 : ℤ) ∣ 12 := by
   apply Int.not_dvd_of_exists_lt_and_lt
+  -- The new goal will become ∃ q, 5 * q < 12 ∧ 12 < 5 * (q + 1)
   use 2
   constructor
   · numbers -- show `5 * 2 < 12`
@@ -43,7 +62,8 @@ example {a b : ℕ} (hb : 0 < b) (hab : a ∣ b) : a ≤ b := by
       0 < b := hb
       _ = a * k := hk
   cancel a at H1
-  have H : 1 ≤ k := H1
+  have H : 1 ≤ k :=
+  H1
   calc
     a = a * 1 := by ring
     _ ≤ a * k := by rel [H]
@@ -51,7 +71,14 @@ example {a b : ℕ} (hb : 0 < b) (hab : a ∣ b) : a ≤ b := by
 
 
 example {a b : ℕ} (hab : a ∣ b) (hb : 0 < b) : 0 < a := by
-  sorry
+  obtain ⟨ k, hk ⟩ := hab  -- this gives b = a * k
+  have H: 0 < a * k := by
+    calc
+      0 < b := hb
+      _ = a * k := hk
+  have H1: 0 < k := by cancel a at H
+  cancel k at H
+
 
 /-! # Exercises -/
 
